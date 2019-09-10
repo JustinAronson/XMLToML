@@ -1,0 +1,4 @@
+These python scripts are designed to convert complex xml files into flattened csv files.  They make the assumption that the XML file has a meta tag that incorporates the entire
+file and that the next level in the hierarchy is a tag that encloses each record.  Within these records, the hierarchy can be deep and heterogeneus and the script will process them.
+To execute the program, run xmlParser first.  Then run csvNormaliser.  Within csvNormaliser, there is a variable called minColumnEntries.  Setting this value to an integer greater than 0 will result
+in the elimination of any columns with less than this number of entries from the table.
