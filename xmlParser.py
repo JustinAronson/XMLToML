@@ -78,8 +78,6 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
         
     def startElement(self, tag, attributes):
         
-        self.xPath.append()
-        
 #        if 'VariationID' in attributes:
 #            self.varID = attributes.get('VariationID')
             
