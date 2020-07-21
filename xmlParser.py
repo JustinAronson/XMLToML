@@ -27,6 +27,9 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
         #the csv table
         self.csvTable = []
         
+        #A stack of current x path
+        self.xPath = []
+        
         #number of rows processed
         self.rowCounter = -1
         
@@ -51,14 +54,14 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
         
 #        os.chmod(r"C:\Users\justi\Documents\csvFile.csv", 0o777)
         
-        self.writeFile = open(r"e:\csvFile.csv", 'w+', newline="", encoding = "utf-8")
+        self.writeFile = open(r"e:\csvFileUniProt.csv", 'w+', newline="", encoding = "utf-8")
         self.writer = csv.writer(self.writeFile)
 
 #        os.chmod(r"C:\Users\justi\Documents\columnTable.csv", 0o777)
-        self.writeColumnTable = open(r"e:\columnTable.csv", 'w+', newline="", encoding = "utf-8")
+        self.writeColumnTable = open(r"e:\columnTableUniProt.csv", 'w+', newline="", encoding = "utf-8")
         self.writerForCT = csv.writer(self.writeColumnTable)
         
-        self.writeColumnCount = open(r"e:\columnCount.csv", 'w+', newline="", encoding = "utf-8")
+        self.writeColumnCount = open(r"e:\columnCountUniProt.csv", 'w+', newline="", encoding = "utf-8")
         self.writerForCC = csv.writer(self.writeColumnCount)
             
     def closeFile(self):
@@ -74,6 +77,8 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
         self.writeColumnCount.close()
         
     def startElement(self, tag, attributes):
+        
+        self.xPath.append()
         
 #        if 'VariationID' in attributes:
 #            self.varID = attributes.get('VariationID')
@@ -206,7 +211,7 @@ parser.setFeature(xml.sax.handler.feature_namespaces, 0)
 Handler = TableCreatorHandler()
 parser.setContentHandler( Handler )
 
-parser.parse("C:\\Users\\justi\\OneDrive\\Documents\\XMLParser\\ClinVarVariationRelease_2019-0603.xml")
+parser.parse("E:\\uniprot_sprot.xml")
 
 print(Handler.csvTable)
 
