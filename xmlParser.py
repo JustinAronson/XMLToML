@@ -78,6 +78,10 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
         
     def startElement(self, tag, attributes):
         
+        self.xPath.append(tag)
+        
+        tagPath = '~'.join(self.xPath)
+        
 #        if 'VariationID' in attributes:
 #            self.varID = attributes.get('VariationID')
             
@@ -97,11 +101,11 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
             self.tagAppearanceOnThisRow = {}
         
         if self.depth != 0:  
-            self.processStartElement(tag, attributes)
+            self.processStartElement(tagPath, attributes)
         self.depth += 1
         
-    def processStartElement(self, tag, attributes):
-        indexedTag = self.processItems(tag)
+    def processStartElement(self, tagPath, attributes):
+        indexedTag = self.processItems(tagPath)
         for key, value in attributes.items():
             attributeTag = indexedTag + ":a:" + key
             self.processItems(attributeTag)
@@ -109,28 +113,28 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
             self.csvTable[tagIndex] = value
         
         
-    def processItems(self, tag):
-        if tag not in self.tagColumn:
-            self.newTagInit(tag)
+    def processItems(self, tagPath):
+        if tagPath not in self.tagColumn:
+            self.newTagInit(tagPath)
                             
         currentAppearance = 0
-        if tag not in self.tagAppearanceOnThisRow:
-            newEntryForFirstAppearance = {tag: 0}
+        if tagPath not in self.tagAppearanceOnThisRow:
+            newEntryForFirstAppearance = {tagPath: 0}
             self.tagAppearanceOnThisRow.update(newEntryForFirstAppearance)
             currentAppearance = 0
         else:
-            currentAppearance = self.tagAppearanceOnThisRow.get(tag)
+            currentAppearance = self.tagAppearanceOnThisRow.get(tagPath)
             currentAppearance = currentAppearance + 1
-            updatedAppearance = {tag: currentAppearance}
+            updatedAppearance = {tagPath: currentAppearance}
             self.tagAppearanceOnThisRow.update(updatedAppearance)
         
         if currentAppearance != 0:    
-            indexedTag = tag + str(currentAppearance)
+            indexedTag = tagPath + str(currentAppearance)
         else:
-            indexedTag = tag
+            indexedTag = tagPath
             
-        if currentAppearance > self.tagMaxAppearance.get(tag):
-            newMaxAppearance = {tag: currentAppearance}
+        if currentAppearance > self.tagMaxAppearance.get(tagPath):
+            newMaxAppearance = {tagPath: currentAppearance}
             self.tagMaxAppearance.update(newMaxAppearance)
             newEntry = {indexedTag: len(self.tagColumn)}
             self.tagColumn.update(newEntry)        
@@ -145,13 +149,13 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
         
         return indexedTag
             
-    def newTagInit(self, tag):
-            newEntry = {tag: len(self.tagColumn)}
+    def newTagInit(self, tagPath):
+            newEntry = {tagPath: len(self.tagColumn)}
             self.tagColumn.update(newEntry)
-            newMaxAppearance = {tag: 0}
+            newMaxAppearance = {tagPath: 0}
             self.tagMaxAppearance.update(newMaxAppearance)
             
-            newItemCount = {tag: 0}
+            newItemCount = {tagPath: 0}
             self.itemCount.update(newItemCount)        
     
     def characters(self, data):
@@ -161,13 +165,13 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
             if self._charBuffer[i] == "\n" or self._charBuffer[i] == "\r" or self._charBuffer[i] == "\"" or self._charBuffer[i] == '\'':
                 self._charBuffer[i] = ""    
             
-    def getTagIndex(self, tag):
+    def getTagIndex(self, tagPath):
         tagIndex = 0
         
-        if self.tagAppearanceOnThisRow.get(tag) != 0:
-            tagIndex = self.tagColumn.get(tag + str(self.tagAppearanceOnThisRow.get(tag)))
+        if self.tagAppearanceOnThisRow.get(tagPath) != 0:
+            tagIndex = self.tagColumn.get(tagPath + str(self.tagAppearanceOnThisRow.get(tagPath)))
         else:
-            tagIndex = self.tagColumn.get(tag)
+            tagIndex = self.tagColumn.get(tagPath)
             
         while len(self.csvTable) < tagIndex + 1:
             self.csvTable.append("")
@@ -179,11 +183,13 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
  #           self.closeFile()
  #           quit()          
         
+        tagPath = '~'.join(self.xPath)
+        
         self.depth -= 1
         if self.depth != 0:
             
             #put into called methods
-            tagIndex = self.getTagIndex(tag)
+            tagIndex = self.getTagIndex(tagPath)
                     
             #Convert from CharList to String and strip whitespace    
             self.csvTable[tagIndex] = ''.join(self._charBuffer).strip()
@@ -194,6 +200,8 @@ class TableCreatorHandler( xml.sax.ContentHandler ):
             
             self.charString = ""
             self._charBuffer= []      
+            
+        self.xPath.pop()
         
     def printParser(self):
         
